@@ -1,17 +1,16 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 from typing import List
-from app.models.user import User
+from app.models.user import User, UserPreferences
 
 router = APIRouter(
-    prefix="/users",
-    tags=["users"],
+    prefix="/user",
+    tags=["user"],
     responses={404: {"description": "Not found"}},
 )
 
-# This is just an example; in a real app, you'd connect to a database
-fake_users_db = []
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(user: User):
-    fake_users_db.append(user)
-    return user
+
+@router.post("/preferences")
+async def addUserPreferences(preferences: UserPreferences,request: Request):
+    user = get_current_user_from_request()
+
