@@ -1,11 +1,15 @@
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from app.models.destination import DestinationSuggestion
 
 class PlanUser(BaseModel):
     name: str
     email: str
-    
+    is_quiz_completed: bool
+    top_destinations: List[str] = []
+    has_voted: bool = False
+
     model_config = {
         "populate_by_name": True
     }
@@ -18,6 +22,7 @@ class Plan(BaseModel):
     description: str
     users: List[PlanUser] = []
     creator: PlanUser
+    suggested_destinations: List[DestinationSuggestion] = []
 
     model_config = {
         "populate_by_name": True,

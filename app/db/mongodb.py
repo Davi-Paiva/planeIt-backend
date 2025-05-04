@@ -47,4 +47,7 @@ def get_users_collection():
     return get_collection("users")
 
 def get_plans_collection():
-    return get_collection("plans") 
+    return get_collection("plans")
+
+def get_destinations_collection():
+    return get_collection("destinations") 

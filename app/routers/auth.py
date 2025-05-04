@@ -113,7 +113,8 @@ async def register(user_data: UserRegistration):
         email=user_data.email,
         password=user_data.password,  # In production, should hash password
         interests=[],
-        location=None
+        location="",
+        preferences=[]
     )
     
     # Insert user into MongoDB
@@ -182,7 +183,7 @@ async def login(login_data: UserLogin):
         "token_type": "bearer",
         "user": {
             "name": user.name,
-            "email": user.email
+            "email": user.email,
         }
     }
 

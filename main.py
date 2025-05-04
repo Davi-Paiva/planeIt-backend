@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import user, auth, plan
-from app.db.mongodb import connect_to_mongo, close_mongo_connection
+from app.routers import user, auth, plan, utils
+from app.db.mongodb import connect_to_mongo, close_mongo_connection, get_destinations_collection
+from app.services.openai_service import OpenAIService
+from app.models.destination import seed_destinations
+from app.data.destinations import destinations
 
 app = FastAPI(title="HackUPC API")
 
@@ -18,6 +21,13 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_db_client():
     await connect_to_mongo()
+    await seed_destinations()
+    await OpenAIService.generate_destination_embeddings()
+    destinations_collection = get_destinations_collection()
+    for destination in destinations:
+        tmp = await destinations_collection.find_one({"airport_code": destination['airport_code']})
+        destination['embedding'] = tmp['embedding']
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
@@ -27,6 +37,7 @@ async def shutdown_db_client():
 app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(plan.router)
+app.include_router(utils.router)
 
 @app.get("/")
 async def read_root():
