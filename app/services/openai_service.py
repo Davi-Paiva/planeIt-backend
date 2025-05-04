@@ -99,5 +99,29 @@ class OpenAIService:
 
 
         return OpenAIService.generate_embedding(response.output_text)
+
+    @staticmethod
+    async def check_is_valid_destination(user_summary: str, cities: List[str]) -> Optional[str]:
+        if not OPENAI_API_KEY:
+            logger.error("OpenAI API key not set. Unable to generate response.")
+            return None
+        
+        try:
+            client = openai.OpenAI()
+
+            response = client.responses.create(
+                model="gpt-4.1-mini",
+                input=f"I have a user with the following summary: {user_summary}. Choose the 15 best cities for this user from the following list: {cities}. Answer with a list of cities separated by commas."
+            )
+
+            cities = response.output_text.split(",")
+            cities = [city.strip() for city in cities]
+
+            return cities
+        except Exception as e:
+            logger.error(f"Error generating OpenAI response: {str(e)}")
+            return None
+
+        
         
         

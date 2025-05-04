@@ -75,8 +75,19 @@ async def addUserPreferences(code: str, user_preferences_request: UserPreference
         destinations_similarities.append((destination, similarity))
 
     sorted_destinations = sorted(destinations_similarities, key=lambda x: x[1], reverse=True)
+
+    cities = []
+    for destination in sorted_destinations[:25]:
+        cities.append(destination[0]['city'])
+
+    valid_cities = await openai_service.check_is_valid_destination(user_summary, cities)
+
+    valid_destinations = []
+    for destination in sorted_destinations[:25]:
+        if destination[0]['city'] in valid_cities:
+            valid_destinations.append(destination)
     
     plans_collection.update_one({"users.email": user.email, "code": code}, 
-    {"$set": {"users.$.top_destinations": [destination[0]['airport_code'] for destination in sorted_destinations[:25]]}})
+    {"$set": {"users.$.top_destinations": [destination[0]['airport_code'] for destination in valid_destinations]}})
 
     return user_summary
